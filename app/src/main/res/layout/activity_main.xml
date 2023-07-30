@@ -19,7 +19,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="221dp"
+        android:layout_height="108dp"
         android:layout_weight="0"
         android:orientation="horizontal">
 
@@ -27,6 +27,7 @@
             android:id="@+id/activityEditTextText"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
             android:layout_weight="1"
             android:ems="10"
             android:inputType="text"
@@ -48,7 +49,19 @@
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="20" />
+        android:layout_height="39dp"
+        android:layout_weight="0" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="331dp"
+        android:layout_weight="0">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>

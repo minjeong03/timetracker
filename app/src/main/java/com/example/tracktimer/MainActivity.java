@@ -1,5 +1,8 @@
 package com.example.tracktimer;
 
+import static com.example.tracktimer.DatabaseUtilsKt.addNoteAndUpdateAdapter;
+import static com.example.tracktimer.DatabaseUtilsKt.fetchNotesAndUpdateAdapter;
+
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -11,15 +14,17 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -27,11 +32,26 @@ public class MainActivity extends AppCompatActivity {
     private static final String PREF_NAME = "MyPrefs";
     private static final String ALARM_ENABLED_KEY = "notificationEnabled";
     private BroadcastReceiver notificationReceiver;
+    private NoteDatabase noteDatabase;
+    private RecyclerView recyclerView;
+    private NoteAdapter noteAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        noteDatabase = NoteDatabase.getInstance(this);
+
+        createNotificationChannel();
+
         setContentView(R.layout.activity_main);
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        noteAdapter = new NoteAdapter(new ArrayList<NoteEntity>());
+        recyclerView.setAdapter(noteAdapter);
+
+        fetchNotesAndUpdateAdapter(this);
 
         notificationReceiver = new BroadcastReceiver() {
             @Override
@@ -61,7 +81,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        createNotificationChannel();
+        Button submitButton = findViewById(R.id.submitButton);
+        EditText activityEditText = findViewById(R.id.activityEditTextText);
+
+        submitButton.setOnClickListener(v-> {
+            String noteText = activityEditText.getText().toString();
+            long timestamp = System.currentTimeMillis();
+            addNoteAndUpdateAdapter(this, timestamp, noteText);
+        });
     }
 
     @Override
@@ -70,6 +97,13 @@ public class MainActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationReceiver);
     }
 
+    public NoteDatabase getNoteDatabase() {
+        return noteDatabase;
+    }
+
+    public NoteAdapter getNoteAdapter() {
+        return noteAdapter;
+    }
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
