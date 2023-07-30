@@ -4,4 +4,6 @@
     <string name="toggle_button_stopped_text">No Notification</string>
     <string name="channel_name">Alarm</string>
     <string name="channel_description">Alarm TimeTracker</string>
+    <string name="activity_default_text">What are you up to?</string>
+    <string name="submit_button_text">Submit</string>
 </resources>
