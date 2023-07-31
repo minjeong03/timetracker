@@ -1,7 +1,7 @@
 package com.example.tracktimer;
 
-import static com.example.tracktimer.DatabaseUtilsKt.addNoteAndUpdateAdapter;
-import static com.example.tracktimer.DatabaseUtilsKt.fetchNotesAndUpdateAdapter;
+import static com.example.tracktimer.DatabaseUtilsKt.addNote;
+import static com.example.tracktimer.DatabaseUtilsKt.fetchDistinctNoteTexts;
 
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -26,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int NOTIFICATION_INTERVAL = 1 * 60 * 1000; // 1 minutes
@@ -33,9 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String ALARM_ENABLED_KEY = "notificationEnabled";
     private BroadcastReceiver notificationReceiver;
     private NoteDatabase noteDatabase;
-    private RecyclerView recyclerView;
-    private NoteAdapter noteAdapter;
-
+    private GridLayout gridLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,13 +45,6 @@ public class MainActivity extends AppCompatActivity {
         createNotificationChannel();
 
         setContentView(R.layout.activity_main);
-
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        noteAdapter = new NoteAdapter(new ArrayList<NoteEntity>());
-        recyclerView.setAdapter(noteAdapter);
-
-        fetchNotesAndUpdateAdapter(this);
 
         notificationReceiver = new BroadcastReceiver() {
             @Override
@@ -87,8 +80,11 @@ public class MainActivity extends AppCompatActivity {
         submitButton.setOnClickListener(v-> {
             String noteText = activityEditText.getText().toString();
             long timestamp = System.currentTimeMillis();
-            addNoteAndUpdateAdapter(this, timestamp, noteText);
+            addNote(this, timestamp, noteText);
         });
+
+        gridLayout = findViewById(R.id.gridLayout);
+        fetchDistinctNoteTexts(this);
     }
 
     @Override
@@ -101,8 +97,27 @@ public class MainActivity extends AppCompatActivity {
         return noteDatabase;
     }
 
-    public NoteAdapter getNoteAdapter() {
-        return noteAdapter;
+    public void updateGridLayout(List<DistinctNoteTextEntity> distinctNoteTexts) {
+        for(int i = 0; i < distinctNoteTexts.size(); ++i) {
+            int row = i/3;
+            int col = i%3;
+            GridLayout.Spec rowSpec = GridLayout.spec(row);
+            GridLayout.Spec colSpec = GridLayout.spec(col);
+            GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams(rowSpec, colSpec);
+            layoutParams.width = GridLayout.LayoutParams.WRAP_CONTENT;
+            layoutParams.height = GridLayout.LayoutParams.WRAP_CONTENT;
+            layoutParams.setMargins(8,8,8,8);
+            Button button = new Button(this);
+            button.setText(distinctNoteTexts.get(i).getDistinctText());
+            button.setLayoutParams(layoutParams);
+
+            button.setOnClickListener(v->{
+                String noteText = button.getText().toString();
+                long timestamp = System.currentTimeMillis();
+                addNote(this, timestamp, noteText);
+            });
+            gridLayout.addView(button);
+        }
     }
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because

@@ -52,13 +52,16 @@
         android:layout_height="39dp"
         android:layout_weight="0" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <GridLayout
+        android:id="@+id/gridLayout"
         android:layout_width="match_parent"
         android:layout_height="331dp"
-        android:layout_weight="0">
-
-    </androidx.recyclerview.widget.RecyclerView>
+        android:layout_weight="0"
+        android:columnCount="3"
+        android:layout_margin="16dp"
+        android:alignmentMode="alignBounds"
+        android:columnOrderPreserved="false">
+    </GridLayout>
 
     <Space
         android:layout_width="match_parent"
