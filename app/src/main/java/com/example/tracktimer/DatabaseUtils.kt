@@ -1,6 +1,5 @@
 package com.example.tracktimer
 
-import android.widget.Button
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,7 +17,7 @@ fun ViewNotesActivity.fetchNotesAndUpdateAdapter() {
     }
 }
 
-fun MainActivity.addNote(timestamp : Long, text : String) {
+fun MainActivity.addNoteAndUpdateLayout(timestamp : Long, text : String) {
     lifecycleScope.launch(Dispatchers.IO) {
         val note = NoteEntity(timestamp, text)
         noteDatabase.noteDao().insert(note)
@@ -27,15 +26,18 @@ fun MainActivity.addNote(timestamp : Long, text : String) {
         if (distinctNoteEntity == null) {
             val newDistinctNoteText = DistinctNoteTextEntity(text);
             noteDatabase.distinctNoteTextDao().insert(newDistinctNoteText)
+            withContext(Dispatchers.Main) {
+                appendButtonInLayout(text)
+            }
         }
     }
 }
 
-fun MainActivity.fetchDistinctNoteTexts() {
+fun MainActivity.fetchDistinctNoteTextsAndUpdateLayout() {
     lifecycleScope.launch(Dispatchers.IO) {
         val noteTexts = noteDatabase.distinctNoteTextDao().allDistinctNoteTexts
         withContext(Dispatchers.Main) {
-            updateGridLayout(noteTexts)
+            updateLayout(noteTexts)
         }
     }
 }

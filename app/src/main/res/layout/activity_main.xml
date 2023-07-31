@@ -52,16 +52,16 @@
         android:layout_height="39dp"
         android:layout_weight="0" />
 
-    <GridLayout
-        android:id="@+id/gridLayout"
+    <com.google.android.flexbox.FlexboxLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/flexboxLayout"
         android:layout_width="match_parent"
         android:layout_height="331dp"
         android:layout_weight="0"
-        android:columnCount="3"
         android:layout_margin="16dp"
-        android:alignmentMode="alignBounds"
-        android:columnOrderPreserved="false">
-    </GridLayout>
+        app:flexWrap="wrap">
+    </com.google.android.flexbox.FlexboxLayout>
 
     <Button
         android:id="@+id/goToViewNotesActivityButton"

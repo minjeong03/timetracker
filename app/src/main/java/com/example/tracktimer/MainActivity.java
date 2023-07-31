@@ -1,7 +1,7 @@
 package com.example.tracktimer;
 
-import static com.example.tracktimer.DatabaseUtilsKt.addNote;
-import static com.example.tracktimer.DatabaseUtilsKt.fetchDistinctNoteTexts;
+import static com.example.tracktimer.DatabaseUtilsKt.addNoteAndUpdateLayout;
+import static com.example.tracktimer.DatabaseUtilsKt.fetchDistinctNoteTextsAndUpdateLayout;
 
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
@@ -15,12 +15,16 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.google.android.flexbox.FlexboxLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String ALARM_ENABLED_KEY = "notificationEnabled";
     private BroadcastReceiver notificationReceiver;
     private NoteDatabase noteDatabase;
-    private GridLayout gridLayout;
+    private FlexboxLayout flexboxLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,11 +80,11 @@ public class MainActivity extends AppCompatActivity {
         submitButton.setOnClickListener(v-> {
             String noteText = activityEditText.getText().toString();
             long timestamp = System.currentTimeMillis();
-            addNote(this, timestamp, noteText);
+            addNoteAndUpdateLayout(this, timestamp, noteText);
         });
 
-        gridLayout = findViewById(R.id.gridLayout);
-        fetchDistinctNoteTexts(this);
+        flexboxLayout = findViewById(R.id.flexboxLayout);
+        fetchDistinctNoteTextsAndUpdateLayout(this);
 
         Button goToViewNotesButton = findViewById(R.id.goToViewNotesActivityButton);
         goToViewNotesButton.setOnClickListener(v->{
@@ -102,28 +106,25 @@ public class MainActivity extends AppCompatActivity {
         return noteDatabase;
     }
 
-    public void updateGridLayout(List<DistinctNoteTextEntity> distinctNoteTexts) {
-        for(int i = 0; i < distinctNoteTexts.size(); ++i) {
-            int row = i/3;
-            int col = i%3;
-            GridLayout.Spec rowSpec = GridLayout.spec(row);
-            GridLayout.Spec colSpec = GridLayout.spec(col);
-            GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams(rowSpec, colSpec);
-            layoutParams.width = GridLayout.LayoutParams.WRAP_CONTENT;
-            layoutParams.height = GridLayout.LayoutParams.WRAP_CONTENT;
-            layoutParams.setMargins(8,8,8,8);
-            Button button = new Button(this);
-            button.setText(distinctNoteTexts.get(i).getDistinctText());
-            button.setLayoutParams(layoutParams);
+    private Button newButtonInGrid(String text) {
+        Button button = new Button(this);
+        button.setText(text);
 
-            button.setOnClickListener(v->{
-                String noteText = button.getText().toString();
-                long timestamp = System.currentTimeMillis();
-                addNote(this, timestamp, noteText);
-                fetchDistinctNoteTexts(this);
-            });
-            gridLayout.addView(button);
+        button.setOnClickListener(v->{
+            long timestamp = System.currentTimeMillis();
+            addNoteAndUpdateLayout(this, timestamp, text);
+        });
+        return button;
+    }
+    public void updateLayout(List<DistinctNoteTextEntity> distinctNoteTexts) {
+        for(int i = 0; i < distinctNoteTexts.size(); ++i) {
+            Button button = newButtonInGrid(distinctNoteTexts.get(i).getDistinctText());
+            flexboxLayout.addView(button);
         }
+    }
+    public void appendButtonInLayout(String text) {
+        Button button = newButtonInGrid(text);
+        flexboxLayout.addView(button);
     }
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
