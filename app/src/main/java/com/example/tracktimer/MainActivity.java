@@ -21,11 +21,8 @@ import android.widget.GridLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -39,12 +36,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         noteDatabase = NoteDatabase.getInstance(this);
 
         createNotificationChannel();
-
-        setContentView(R.layout.activity_main);
 
         notificationReceiver = new BroadcastReceiver() {
             @Override
@@ -85,8 +81,17 @@ public class MainActivity extends AppCompatActivity {
 
         gridLayout = findViewById(R.id.gridLayout);
         fetchDistinctNoteTexts(this);
-    }
 
+        Button goToViewNotesButton = findViewById(R.id.goToViewNotesActivityButton);
+        goToViewNotesButton.setOnClickListener(v->{
+            Intent goToViewNotesIntent = new Intent(this, ViewNotesActivity.class);
+            startActivity(goToViewNotesIntent);
+        });
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -115,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
                 String noteText = button.getText().toString();
                 long timestamp = System.currentTimeMillis();
                 addNote(this, timestamp, noteText);
+                fetchDistinctNoteTexts(this);
             });
             gridLayout.addView(button);
         }

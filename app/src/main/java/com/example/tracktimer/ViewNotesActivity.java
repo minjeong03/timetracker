@@ -17,15 +17,16 @@ public class ViewNotesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_notes);
+
+        noteDatabase = NoteDatabase.getInstance(this);
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         noteAdapter = new NoteAdapter(new ArrayList<NoteEntity>());
         recyclerView.setAdapter(noteAdapter);
 
-
         fetchNotesAndUpdateAdapter(this);
-
     }
     public NoteDatabase getNoteDatabase() {
         return noteDatabase;
